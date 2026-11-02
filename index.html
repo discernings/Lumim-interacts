@@ -1,351 +1,430 @@
+<!-- index.html | Discord username checker + claim via token | GitHub Pages -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord 4-Digit Auto-Claimer & Checker</title>
-    <style>
-        :root {
-            --bg-color: #313338;
-            --panel-bg: #2b2d31;
-            --input-bg: #1e1f22;
-            --accent-color: #5865f2;
-            --accent-hover: #4752c4;
-            --text-main: #f2f3f5;
-            --text-muted: #949ba4;
-            --success-color: #23a55a;
-            --success-bg: rgba(35, 165, 90, 0.1);
-            --danger-color: #f23f43;
-            --danger-bg: rgba(242, 63, 67, 0.1);
-            --border-color: #1f2023;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'gg sans', 'Noto Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 680px;
-            background-color: var(--panel-bg);
-            border-radius: 8px;
-            padding: 24px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-        }
-
-        h1 {
-            font-size: 1.4rem;
-            margin-bottom: 6px;
-            color: var(--text-main);
-            text-align: center;
-        }
-
-        p.subtitle {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 14px;
-        }
-
-        label {
-            display: block;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 6px;
-            letter-spacing: 0.5px;
-        }
-
-        input[type="text"], input[type="number"], input[type="password"] {
-            width: 100%;
-            padding: 10px 12px;
-            background-color: var(--input-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            color: var(--text-main);
-            font-size: 0.95rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        input:focus {
-            border-color: var(--accent-color);
-        }
-
-        .row {
-            display: flex;
-            gap: 12px;
-        }
-
-        .row .form-group {
-            flex: 1;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 10px;
-        }
-
-        button {
-            flex: 1;
-            padding: 12px;
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            margin-top: 6px;
-        }
-
-        button:hover {
-            background-color: var(--accent-hover);
-        }
-
-        button.stop {
-            background-color: var(--danger-color);
-        }
-        button.stop:hover {
-            background-color: #d83c3e;
-        }
-
-        button:disabled {
-            background-color: var(--text-muted);
-            cursor: not-allowed;
-        }
-
-        .results-container {
-            margin-top: 20px;
-            max-height: 260px;
-            overflow-y: auto;
-            border-radius: 4px;
-            border: 1px solid var(--border-color);
-            background-color: var(--input-bg);
-            padding: 10px;
-            font-family: monospace;
-            font-size: 0.85rem;
-            display: none;
-        }
-
-        .results-container.active {
-            display: block;
-        }
-
-        .log-line {
-            margin-bottom: 6px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding-bottom: 4px;
-        }
-
-        .log-line.available {
-            color: var(--success-color);
-            font-weight: bold;
-            background: var(--success-bg);
-            padding: 6px;
-            border-radius: 4px;
-        }
-
-        .log-line.taken {
-            color: var(--text-muted);
-        }
-
-        .log-line.error {
-            color: var(--danger-color);
-        }
-
-        .log-line.claimed {
-            color: #5865f2;
-            font-weight: bold;
-            background: rgba(88, 101, 242, 0.15);
-            padding: 6px;
-            border-radius: 4px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Discord Username Checker + Claim</title>
+<style>
+  :root {
+    --bg: #0f0f13;
+    --card: #1a1a22;
+    --border: #2a2a35;
+    --accent: #5865f2;
+    --accent2: #7289da;
+    --green: #3ba55d;
+    --red: #ed4245;
+    --text: #e0e0e8;
+    --muted: #8b8b9a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px 16px;
+    line-height: 1.45;
+  }
+  .wrap { max-width: 740px; margin: 0 auto; }
+  h1 { font-size: 1.55rem; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.02em; }
+  .sub { color: var(--muted); font-size: 0.88rem; margin-bottom: 22px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 16px;
+  }
+  label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .row > div { flex: 1; min-width: 110px; }
+  input, select {
+    width: 100%;
+    background: #121218;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 9px 11px;
+    border-radius: 8px;
+    font-size: 0.92rem;
+    outline: none;
+  }
+  input:focus, select:focus { border-color: var(--accent); }
+  .btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn:hover { background: var(--accent2); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-sm { padding: 5px 10px; font-size: 0.78rem; }
+  .btn-claim { background: var(--green); }
+  .btn-claim:hover { background: #2d8a4a; }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+  #status { font-size: 0.84rem; color: var(--muted); margin: 10px 0 6px; min-height: 1.2em; }
+  .list { display: flex; flex-direction: column; gap: 7px; max-height: 400px; overflow-y: auto; }
+  .item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #121218;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    gap: 8px;
+  }
+  .item.available { border-color: rgba(59,165,93,0.45); }
+  .item.taken { border-color: rgba(237,66,69,0.28); opacity: 0.72; }
+  .item.error { border-color: rgba(255,180,0,0.35); }
+  .item.claimed { border-color: var(--green); background: rgba(59,165,93,0.08); }
+  .name { font-family: ui-monospace, 'Cascadia Code', monospace; font-size: 0.95rem; }
+  .badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 999px;
+  }
+  .badge.ok { background: rgba(59,165,93,0.2); color: var(--green); }
+  .badge.no { background: rgba(237,66,69,0.15); color: var(--red); }
+  .badge.err { background: rgba(255,180,0,0.15); color: #ffb400; }
+  .badge.claimed { background: rgba(59,165,93,0.35); color: #7ddea0; }
+  .item-actions { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .empty { color: var(--muted); text-align: center; padding: 24px 10px; font-size: 0.88rem; }
+  .tip {
+    font-size: 0.76rem;
+    color: var(--muted);
+    margin-top: 12px;
+    line-height: 1.5;
+  }
+  .tip code { background: #121218; padding: 1px 4px; border-radius: 3px; font-size: 0.72rem; }
+  .warn {
+    background: rgba(237,66,69,0.08);
+    border: 1px solid rgba(237,66,69,0.25);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 0.8rem;
+    color: #e8a0a0;
+    margin-bottom: 14px;
+  }
+  footer { margin-top: 24px; text-align: center; color: var(--muted); font-size: 0.72rem; }
+</style>
 </head>
 <body>
+<div class="wrap">
+  <h1>Discord Username Checker + Claim</h1>
+  <p class="sub">Gera · checa · claima com token da conta</p>
 
-<div class="container">
-    <h1>Discord Auto-Claimer 4-Digit</h1>
-    <p class="subtitle">Varredura automática e tentativa imediata de alteração (claim) na primeira ocorrência livre.</p>
+  <div class="warn">
+    Token e senha ficam só no teu browser. Não cola token em site aleatório. Se o proxy CORS for usado, o token passa por ele — aumenta o risco. Preferência: roda local ou aceita o risco.
+  </div>
 
-    <div class="form-group">
-        <label for="token">Discord User Token (Authorization)</label>
-        <input type="password" id="token" placeholder="Cole seu token de usuário aqui">
-    </div>
-
-    <div class="form-group">
-        <label for="prefix">Prefixo Opcional (Ex: x, vibe, _)</label>
-        <input type="text" id="prefix" placeholder="Deixe em branco para testar apenas 4 dígitos (0000 - 9999)">
-    </div>
-
+  <div class="card">
     <div class="row">
-        <div class="form-group">
-            <label for="startFrom">Iniciar a partir de</label>
-            <input type="number" id="startFrom" min="0" max="9999" value="0">
-        </div>
-        <div class="form-group">
-            <label for="delay">Delay (ms)</label>
-            <input type="number" id="delay" min="300" max="5000" value="800">
-        </div>
+      <div style="flex:2">
+        <label>Token da conta (user token)</label>
+        <input type="password" id="token" placeholder="mfa.xxxx ou o token normal" autocomplete="off">
+      </div>
+      <div>
+        <label>Senha da conta</label>
+        <input type="password" id="password" placeholder="senha atual" autocomplete="off">
+      </div>
     </div>
-
-    <div class="btn-group">
-        <button id="startBtn">Iniciar Auto-Claimer</button>
-        <button id="stopBtn" class="stop" disabled>Parar Loop</button>
+    <div class="row">
+      <div>
+        <label>Tamanho</label>
+        <input type="number" id="len" min="2" max="32" value="4">
+      </div>
+      <div>
+        <label>Quantidade</label>
+        <input type="number" id="qty" min="1" max="80" value="15">
+      </div>
+      <div>
+        <label>Charset</label>
+        <select id="charset">
+          <option value="letters">Só letras</option>
+          <option value="numbers">Só números</option>
+          <option value="alphanum" selected>Letras + números</option>
+          <option value="full">Letras + números + . _</option>
+        </select>
+      </div>
     </div>
+    <div class="row">
+      <div>
+        <label>Prefixo (opcional)</label>
+        <input type="text" id="prefix" placeholder="ex: sussy" maxlength="20">
+      </div>
+      <div>
+        <label>Delay checks (ms)</label>
+        <input type="number" id="delay" min="400" max="5000" value="1000">
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="btnGen">Gerar + Checar</button>
+      <button class="btn btn-ghost" id="btnStop" disabled>Parar</button>
+      <button class="btn btn-ghost" id="btnClear">Limpar</button>
+      <button class="btn btn-ghost" id="btnTest">Testar token</button>
+    </div>
+    <div id="status"></div>
+  </div>
 
-    <div id="results" class="results-container"></div>
+  <div class="card">
+    <label style="margin-bottom:10px">Resultados</label>
+    <div class="list" id="list">
+      <div class="empty">Nada ainda.</div>
+    </div>
+    <p class="tip">
+      Check: <code>POST /unique-username/username-attempt-unauthed</code><br>
+      Claim: <code>PATCH /users/@me</code> com username + password · fallback <code>POST /users/@me/pomelo</code><br>
+      Se der 401/403 no claim, token inválido ou senha errada. Rate limit = espera.
+    </p>
+  </div>
+
+  <footer>feito pro sussy</footer>
 </div>
 
 <script>
-    let isRunning = false;
+const CHECK_API = "https://discord.com/api/v9/unique-username/username-attempt-unauthed";
+const ME_API = "https://discord.com/api/v9/users/@me";
+const POMELO_API = "https://discord.com/api/v9/users/@me/pomelo";
+const PROXY = "https://corsproxy.io/?";
 
-    function addLog(text, type = 'taken') {
-        const box = document.getElementById('results');
-        const line = document.createElement('div');
-        line.className = `log-line ${type}`;
-        line.innerHTML = `<span>[${new Date().toLocaleTimeString()}] ${text}</span>`;
-        box.appendChild(line);
-        box.scrollTop = box.scrollHeight;
+const chars = {
+  letters: "abcdefghijklmnopqrstuvwxyz",
+  numbers: "0123456789",
+  alphanum: "abcdefghijklmnopqrstuvwxyz0123456789",
+  full: "abcdefghijklmnopqrstuvwxyz0123456789._"
+};
+
+let running = false;
+let abortFlag = false;
+
+const $ = id => document.getElementById(id);
+const listEl = $("list");
+const statusEl = $("status");
+
+function randName(len, set, prefix) {
+  let s = "";
+  for (let i = 0; i < len; i++) s += set[Math.floor(Math.random() * set.length)];
+  let full = (prefix || "") + s;
+  full = full.replace(/\.{2,}/g, ".").replace(/^\./, "a").replace(/\.$/, "a");
+  if (full.length > 32) full = full.slice(0, 32);
+  if (full.length < 2) full += "x";
+  return full.toLowerCase();
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function rawFetch(url, opts, useProxy = false) {
+  const target = useProxy ? PROXY + encodeURIComponent(url) : url;
+  return fetch(target, opts);
+}
+
+async function checkUsername(name) {
+  const body = JSON.stringify({ username: name });
+  const opts = {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body
+  };
+  for (const useProxy of [false, true]) {
+    try {
+      const r = await rawFetch(CHECK_API, opts, useProxy);
+      if (r.status === 200) {
+        const j = await r.json();
+        if (typeof j.taken === "boolean") return j.taken ? "taken" : "available";
+      }
+      if (r.status === 429) return "rate";
+    } catch (_) {}
+  }
+  return "error";
+}
+
+async function claimUsername(name) {
+  const token = $("token").value.trim();
+  const password = $("password").value;
+  if (!token) return { ok: false, msg: "sem token" };
+  if (!password) return { ok: false, msg: "sem senha" };
+
+  const headers = {
+    "Content-Type": "application/json",
+    "Authorization": token
+  };
+
+  // 1) PATCH /users/@me
+  const body1 = JSON.stringify({ username: name, password });
+  for (const useProxy of [false, true]) {
+    try {
+      const r = await rawFetch(ME_API, { method: "PATCH", headers, body: body1 }, useProxy);
+      if (r.status === 200) {
+        const j = await r.json();
+        if (j.username && j.username.toLowerCase() === name.toLowerCase()) {
+          return { ok: true, msg: "claimado via @me" };
+        }
+        return { ok: true, msg: "ok (resposta 200)" };
+      }
+      if (r.status === 400 || r.status === 401 || r.status === 403) {
+        const t = await r.text();
+        // tenta pomelo em seguida
+        break;
+      }
+      if (r.status === 429) return { ok: false, msg: "rate limit" };
+    } catch (_) {}
+  }
+
+  // 2) fallback POST /users/@me/pomelo
+  const body2 = JSON.stringify({ username: name });
+  for (const useProxy of [false, true]) {
+    try {
+      const r = await rawFetch(POMELO_API, { method: "POST", headers, body: body2 }, useProxy);
+      if (r.status === 200) return { ok: true, msg: "claimado via pomelo" };
+      if (r.status === 429) return { ok: false, msg: "rate limit" };
+      const t = await r.text();
+      return { ok: false, msg: `falhou ${r.status}` };
+    } catch (_) {}
+  }
+  return { ok: false, msg: "erro de rede/cors" };
+}
+
+function addItem(name, state) {
+  if (listEl.querySelector(".empty")) listEl.innerHTML = "";
+  const div = document.createElement("div");
+  div.className = "item " + (state === "available" ? "available" : state === "taken" ? "taken" : "error");
+  div.dataset.name = name;
+
+  const badgeText = state === "available" ? "livre" : state === "taken" ? "ocupado" : state === "rate" ? "rate" : "erro";
+  const badgeClass = state === "available" ? "ok" : state === "taken" ? "no" : "err";
+
+  div.innerHTML = `
+    <span class="name">@${name}</span>
+    <div class="item-actions">
+      <span class="badge \( {badgeClass}"> \){badgeText}</span>
+      ${state === "available" ? `
+        <button class="btn btn-sm btn-claim" data-claim="${name}">Claim</button>
+        <button class="btn btn-sm btn-ghost" data-copy="${name}">Copiar</button>
+      ` : ""}
+    </div>
+  `;
+  listEl.prepend(div);
+
+  div.querySelectorAll("[data-copy]").forEach(b => {
+    b.onclick = () => {
+      navigator.clipboard.writeText(b.dataset.copy);
+      b.textContent = "ok";
+      setTimeout(() => b.textContent = "Copiar", 800);
+    };
+  });
+
+  div.querySelectorAll("[data-claim]").forEach(b => {
+    b.onclick = async () => {
+      b.disabled = true;
+      b.textContent = "...";
+      statusEl.textContent = `claimando @${name}...`;
+      const res = await claimUsername(name);
+      if (res.ok) {
+        div.className = "item claimed";
+        div.querySelector(".badge").className = "badge claimed";
+        div.querySelector(".badge").textContent = "claimado";
+        b.remove();
+        statusEl.textContent = `@${name} → ${res.msg}`;
+      } else {
+        b.disabled = false;
+        b.textContent = "Claim";
+        statusEl.textContent = `@${name} falhou: ${res.msg}`;
+      }
+    };
+  });
+}
+
+$("btnGen").onclick = async () => {
+  if (running) return;
+  running = true;
+  abortFlag = false;
+  $("btnGen").disabled = true;
+  $("btnStop").disabled = false;
+
+  const len = Math.max(2, Math.min(32, +$("len").value || 4));
+  const qty = Math.max(1, Math.min(80, +$("qty").value || 15));
+  const set = chars[$("charset").value] || chars.alphanum;
+  const prefix = ($("prefix").value || "").toLowerCase().replace(/[^a-z0-9._]/g, "");
+  const delay = Math.max(400, +$("delay").value || 1000);
+
+  let done = 0, free = 0;
+
+  for (let i = 0; i < qty; i++) {
+    if (abortFlag) break;
+    const nameLen = Math.max(2, len - prefix.length);
+    const name = randName(nameLen, set, prefix);
+    statusEl.textContent = `checando \( {i + 1}/ \){qty} → @${name}`;
+    const state = await checkUsername(name);
+    addItem(name, state);
+    done++;
+    if (state === "available") free++;
+    if (state === "rate") {
+      statusEl.textContent = "rate limit — 3s...";
+      await sleep(3000);
+    } else {
+      await sleep(delay);
     }
+  }
 
-    // Função para alterar de fato o username na conta do Discord
-    async function claimUsername(token, newUsername) {
-        addLog(`Tentando aplicar o username @${newUsername} na sua conta...`, 'claimed');
-        try {
-            // Nota: Para alterar o username global (@me) via API patch, é geralmente necessário a senha atual ou endpoint de modificação de usuário dependendo da versão da API.
-            const response = await fetch(`https://discord.com/api/v9/users/@me`, {
-                method: 'PATCH',
-                headers: {
-                    'Authorization': token,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username: newUsername })
-            });
+  statusEl.textContent = abortFlag
+    ? `parado · ${done} · ${free} livres`
+    : `pronto · ${done} · ${free} livres`;
+  running = false;
+  $("btnGen").disabled = false;
+  $("btnStop").disabled = true;
+};
 
-            if (response.status === 200) {
-                addLog(`[SUCESSO ABSOLUTO] Username @${newUsername} aplicado com sucesso na sua conta!`, 'claimed');
-                alert(`Sucesso! O username @${newUsername} foi configurado automaticamente no seu perfil.`);
-                return true;
-            } else {
-                const errData = await response.json();
-                addLog(`Erro ao aplicar username: ${JSON.stringify(errData)}`, 'error');
-                return false;
-            }
-        } catch (e) {
-            addLog(`Erro crítico na requisição de alteração: ${e.message}`, 'error');
-            return false;
-        }
-    }
+$("btnStop").onclick = () => { abortFlag = true; };
+$("btnClear").onclick = () => {
+  listEl.innerHTML = '<div class="empty">Nada ainda.</div>';
+  statusEl.textContent = "";
+};
 
-    document.getElementById('startBtn').addEventListener('click', async function() {
-        const token = document.getElementById('token').value.trim();
-        const prefix = document.getElementById('prefix').value.toLowerCase().trim();
-        let currentNum = parseInt(document.getElementById('startFrom').value) || 0;
-        const delay = parseInt(document.getElementById('delay').value) || 800;
-        const resultsContainer = document.getElementById('results');
-
-        if (!token) {
-            alert('Insira o seu token do Discord.');
-            return;
-        }
-
-        resultsContainer.innerHTML = '';
-        resultsContainer.classList.add('active');
-        
-        isRunning = true;
-        document.getElementById('startBtn').disabled = true;
-        document.getElementById('stopBtn').disabled = false;
-
-        addLog('Iniciando varredura automatizada com Auto-Claim...', 'taken');
-
-        while (isRunning && currentNum <= 9999) {
-            const numPadded = String(currentNum).padStart(4, '0');
-            const username = prefix + numPadded;
-
-            if (username.length > 32 || username.length < 2) {
-                currentNum++;
-                continue;
-            }
-
-            try {
-                // Checker oficial (Pomelo attempt)
-                const response = await fetch(`https://discord.com/api/v9/users/@me/pomelo-attempt`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': token,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ username: username })
-                });
-
-                if (response.status === 200) {
-                    const data = await response.json();
-                    if (data.taken === false) {
-                        addLog(`[ENCONTRADO LIVRE!] @${username}`, 'available');
-                        
-                        // Dispara o auto-claim automático imediatamente
-                        const claimed = await claimUsername(token, username);
-                        
-                        // Para o loop após encontrar e tentar resgatar
-                        break; 
-                    } else {
-                        addLog(`[Ocupado] @${username}`, 'taken');
-                    }
-                } else if (response.status === 429) {
-                    addLog(`Rate limit atingido. Pausando por 5 segundos...`, 'error');
-                    await new Promise(r => setTimeout(r, 5000));
-                    continue;
-                } else if (response.status === 401) {
-                    addLog(`Erro 401: Token inválido ou expirado.`, 'error');
-                    break;
-                } else {
-                    addLog(`Erro HTTP ${response.status} em @${username}`, 'error');
-                }
-            } catch (err) {
-                addLog(`Erro de conexão ao testar @${username}`, 'error');
-            }
-
-            currentNum++;
-            await new Promise(r => setTimeout(r, delay));
-        }
-
-        isRunning = false;
-        document.getElementById('startBtn').disabled = false;
-        document.getElementById('stopBtn').disabled = true;
-        addLog('Processo encerrado.', 'taken');
-    });
-
-    document.getElementById('stopBtn').addEventListener('click', function() {
-        isRunning = false;
-        this.disabled = true;
-        document.getElementById('startBtn').disabled = false;
-        addLog('Interrompido manualmente pelo operador.', 'error');
-    });
+$("btnTest").onclick = async () => {
+  const token = $("token").value.trim();
+  if (!token) {
+    statusEl.textContent = "cola o token primeiro";
+    return;
+  }
+  statusEl.textContent = "testando token...";
+  const headers = { Authorization: token };
+  for (const useProxy of [false, true]) {
+    try {
+      const r = await rawFetch(ME_API, { method: "GET", headers }, useProxy);
+      if (r.status === 200) {
+        const j = await r.json();
+        statusEl.textContent = `token ok → @${j.username || "?"} (id ${j.id})`;
+        return;
+      }
+      if (r.status === 401) {
+        statusEl.textContent = "token inválido / expirado";
+        return;
+      }
+    } catch (_) {}
+  }
+  statusEl.textContent = "não conseguiu validar (cors/rede)";
+};
 </script>
-
 </body>
 </html>
