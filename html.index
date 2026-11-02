@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord API Native Username Checker</title>
+    <style>
+        :root {
+            --bg-color: #313338;
+            --panel-bg: #2b2d31;
+            --input-bg: #1e1f22;
+            --accent-color: #5865f2;
+            --accent-hover: #4752c4;
+            --text-main: #f2f3f5;
+            --text-muted: #949ba4;
+            --success-color: #23a55a;
+            --success-bg: rgba(35, 165, 90, 0.1);
+            --danger-color: #f23f43;
+            --danger-bg: rgba(242, 63, 67, 0.1);
+            --border-color: #1f2023;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'gg sans', 'Noto Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            background-color: var(--panel-bg);
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            margin-bottom: 6px;
+            color: var(--text-main);
+            text-align: center;
+        }
+
+        p.subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"], input[type="number"], input[type="password"] {
+            width: 100%;
+            padding: 10px 12px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--accent-color);
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .row .form-group {
+            flex: 1;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 16px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-main);
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-transform: none;
+            font-weight: 400;
+        }
+
+        .checkbox-label input {
+            accent-color: var(--accent-color);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 6px;
+        }
+
+        button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        button:disabled {
+            background-color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        .results-container {
+            margin-top: 20px;
+            max-height: 280px;
+            overflow-y: auto;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background-color: var(--input-bg);
+            display: none;
+        }
+
+        .results-container.active {
+            display: block;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .username-text {
+            font-family: monospace;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-badge.available {
+            background-color: var(--success-bg);
+            color: var(--success-color);
+        }
+
+        .status-badge.taken {
+            background-color: var(--danger-bg);
+            color: var(--danger-color);
+        }
+
+        .status-badge.checking {
+            background-color: rgba(88, 101, 242, 0.1);
+            color: var(--accent-color);
+        }
+
+        .action-btn {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-weight: 600;
+            width: auto;
+            margin-top: 0;
+        }
+
+        .action-btn:hover {
+            opacity: 0.85;
+        }
+
+        .log-box {
+            margin-top: 12px;
+            padding: 10px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            max-height: 80px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Discord Native API Checker</h1>
+    <p class="subtitle">Conectado diretamente ao endpoint oficial do Discord (Sem limite restritivo de taxa customizável)</p>
+
+    <div class="form-group">
+        <label for="token">Discord User Token (Authorization)</label>
+        <input type="password" id="token" placeholder="Cole seu token de usuário aqui (necessário para bypassar o CORS/limite)">
+    </div>
+
+    <div class="form-group">
+        <label for="prefix">Prefixo Fixo (Opcional)</label>
+        <input type="text" id="prefix" placeholder="Ex: dev, x">
+    </div>
+
+    <div class="form-group">
+        <label>Tipos de Caracteres</label>
+        <div class="checkbox-group">
+            <label class="checkbox-label"><input type="checkbox" id="useLetters" checked> Letras (a-z)</label>
+            <label class="checkbox-label"><input type="checkbox" id="useNumbers" checked> Números (0-9)</label>
+            <label class="checkbox-label"><input type="checkbox" id="useUnderscore"> Underscore (_)</label>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-group">
+            <label for="length">Tamanho Total</label>
+            <input type="number" id="length" min="2" max="32" value="5">
+        </div>
+        <div class="form-group">
+            <label for="amount">Quantidade a Testar</label>
+            <input type="number" id="amount" min="1" max="100" value="15">
+        </div>
+        <div class="form-group">
+            <label for="delay">Delay (ms)</label>
+            <input type="number" id="delay" min="100" max="5000" value="800">
+        </div>
+    </div>
+
+    <button id="startBtn">Iniciar Checker Nativo</button>
+
+    <div id="results" class="results-container"></div>
+    <div id="logBox" class="log-box">Status: Aguardando execução...</div>
+</div>
+
+<script>
+    function log(msg) {
+        const box = document.getElementById('logBox');
+        box.innerHTML += `<br>[${new Date().toLocaleTimeString()}] ${msg}`;
+        box.scrollTop = box.scrollHeight;
+    }
+
+    document.getElementById('startBtn').addEventListener('click', async function() {
+        const token = document.getElementById('token').value.trim();
+        const prefix = document.getElementById('prefix').value.toLowerCase().trim();
+        const useLetters = document.getElementById('useLetters').checked;
+        const useNumbers = document.getElementById('useNumbers').checked;
+        const useUnderscore = document.getElementById('useUnderscore').checked;
+        const totalLength = parseInt(document.getElementById('length').value);
+        const amount = parseInt(document.getElementById('amount').value);
+        const delay = parseInt(document.getElementById('delay').value);
+        const resultsContainer = document.getElementById('results');
+
+        if (!token) {
+            alert('Insira o seu token do Discord para autenticar as requisições na API.');
+            return;
+        }
+
+        if (!useLetters && !useNumbers && !useUnderscore) {
+            alert('Selecione pelo menos um tipo de caractere.');
+            return;
+        }
+
+        let charset = '';
+        if (useLetters) charset += 'abcdefghijklmnopqrstuvwxyz';
+        if (useNumbers) charset += '0123456789';
+        if (useUnderscore) charset += '_';
+
+        resultsContainer.innerHTML = '';
+        resultsContainer.classList.add('active');
+        log('Gerando combinações...');
+
+        let generatedNames = new Set();
+        while (generatedNames.size < amount) {
+            let remainingLength = totalLength - prefix.length;
+            if (remainingLength < 1) {
+                alert('Tamanho total menor que o prefixo.');
+                return;
+            }
+            let randomPart = '';
+            for (let i = 0; i < remainingLength; i++) {
+                randomPart += charset.charAt(Math.floor(Math.random() * charset.length));
+            }
+            let finalName = prefix + randomPart;
+            if (finalName.length >= 2 && finalName.length <= 32) {
+                generatedNames.add(finalName);
+            }
+        }
+
+        const namesArray = Array.from(generatedNames);
+
+        // Renderiza itens iniciais com status pendente/checando
+        const itemElements = {};
+        namesArray.forEach(username => {
+            const item = document.createElement('div');
+            item.className = 'result-item';
+
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'username-text';
+            nameSpan.textContent = '@' + username;
+
+            const rightSide = document.createElement('div');
+            rightSide.style.display = 'flex';
+            rightSide.style.alignItems = 'center';
+            rightSide.style.gap = '10px';
+
+            const badge = document.createElement('span');
+            badge.className = 'status-badge checking';
+            badge.textContent = 'Na fila';
+
+            rightSide.appendChild(badge);
+            item.appendChild(nameSpan);
+            item.appendChild(rightSide);
+            resultsContainer.appendChild(item);
+
+            itemElements[username] = { badge, rightSide, item };
+        });
+
+        document.getElementById('startBtn').disabled = true;
+        log('Iniciando varredura via API oficial do Discord...');
+
+        for (let username of namesArray) {
+            const el = itemElements[username];
+            el.badge.textContent = 'Verificando...';
+
+            try {
+                // Endpoint real do Discord para checar disponibilidade de username global
+                const response = await fetch(`https://discord.com/api/v9/users/@me/pomelo-attempt`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username: username })
+                });
+
+                if (response.status === 200) {
+                    const data = await response.json();
+                    if (data.taken === false) {
+                        el.badge.className = 'status-badge available';
+                        el.badge.textContent = 'Disponível!';
+                        
+                        const applyBtn = document.createElement('button');
+                        applyBtn.className = 'action-btn';
+                        applyBtn.textContent = 'Copiar';
+                        applyBtn.onclick = () => {
+                            navigator.clipboard.writeText(username);
+                            alert(`Username ${username} copiado para a área de transferência!`);
+                        };
+                        el.rightSide.appendChild(applyBtn);
+                        log(`[LIVRE] @${username}`);
+                    } else {
+                        el.badge.className = 'status-badge taken';
+                        el.badge.textContent = 'Ocupado';
+                        log(`[OCUPADO] @${username}`);
+                    }
+                } else if (response.status === 429) {
+                    el.badge.textContent = 'Rate Limit (Aguarde)';
+                    log('Aviso: Rate limit atingido pelo Discord. Aumente o delay.');
+                    await new Promise(r => setTimeout(r, 4000));
+                } else if (response.status === 401) {
+                    log('Erro: Token do Discord inválido ou expirado.');
+                    alert('Token inválido ou não autorizado.');
+                    break;
+                } else {
+                    el.badge.textContent = 'Erro API';
+                    log(`Erro HTTP ${response.status} para @${username}`);
+                }
+            } catch (err) {
+                el.badge.textContent = 'Erro de Rede';
+                log(`Erro de conexão ao testar @${username}`);
+            }
+
+            await new Promise(r => setTimeout(r, delay));
+        }
+
+        document.getElementById('startBtn').disabled = false;
+        log('Varredura concluída.');
+    });
+</script>
+
+</body>
+</html>
