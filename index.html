@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord 4-Digit Brute-Force Checker</title>
+    <title>Discord 4-Digit Auto-Claimer & Checker</title>
     <style>
         :root {
             --bg-color: #313338;
@@ -39,7 +39,7 @@
 
         .container {
             width: 100%;
-            max-width: 650px;
+            max-width: 680px;
             background-color: var(--panel-bg);
             border-radius: 8px;
             padding: 24px;
@@ -136,7 +136,7 @@
 
         .results-container {
             margin-top: 20px;
-            max-height: 250px;
+            max-height: 260px;
             overflow-y: auto;
             border-radius: 4px;
             border: 1px solid var(--border-color);
@@ -176,23 +176,20 @@
             color: var(--danger-color);
         }
 
-        .action-btn {
-            background-color: var(--success-color);
-            color: white;
-            border: none;
-            padding: 4px 8px;
+        .log-line.claimed {
+            color: #5865f2;
+            font-weight: bold;
+            background: rgba(88, 101, 242, 0.15);
+            padding: 6px;
             border-radius: 4px;
-            font-size: 0.75rem;
-            cursor: pointer;
-            font-weight: 600;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Discord 4-Digit Loop Checker</h1>
-    <p class="subtitle">Varredura automática e contínua de combinações numéricas de 4 dígitos (0000 a 9999) até encontrar uma livre.</p>
+    <h1>Discord Auto-Claimer 4-Digit</h1>
+    <p class="subtitle">Varredura automática e tentativa imediata de alteração (claim) na primeira ocorrência livre.</p>
 
     <div class="form-group">
         <label for="token">Discord User Token (Authorization)</label>
@@ -200,23 +197,23 @@
     </div>
 
     <div class="form-group">
-        <label for="prefix">Prefixo Opcional (Ex: x, vibe, _) -> Total ficará com 4 dígitos + prefixo ou fixo 4 dígitos</label>
-        <input type="text" id="prefix" placeholder="Deixe em branco para testar apenas 4 dígitos numéricos (0000 - 9999)">
+        <label for="prefix">Prefixo Opcional (Ex: x, vibe, _)</label>
+        <input type="text" id="prefix" placeholder="Deixe em branco para testar apenas 4 dígitos (0000 - 9999)">
     </div>
 
     <div class="row">
         <div class="form-group">
-            <label for="startFrom">Iniciar a partir de (Número)</label>
+            <label for="startFrom">Iniciar a partir de</label>
             <input type="number" id="startFrom" min="0" max="9999" value="0">
         </div>
         <div class="form-group">
-            <label for="delay">Delay entre requisições (ms)</label>
+            <label for="delay">Delay (ms)</label>
             <input type="number" id="delay" min="300" max="5000" value="800">
         </div>
     </div>
 
     <div class="btn-group">
-        <button id="startBtn">Iniciar Loop Infinito</button>
+        <button id="startBtn">Iniciar Auto-Claimer</button>
         <button id="stopBtn" class="stop" disabled>Parar Loop</button>
     </div>
 
@@ -226,19 +223,42 @@
 <script>
     let isRunning = false;
 
-    function addLog(text, type = 'taken', username = '') {
+    function addLog(text, type = 'taken') {
         const box = document.getElementById('results');
         const line = document.createElement('div');
         line.className = `log-line ${type}`;
-        
-        let content = `<span>[${new Date().toLocaleTimeString()}] ${text}</span>`;
-        if (type === 'available') {
-            content += `<button class="action-btn" onclick="navigator.clipboard.writeText('${username}'); alert('Copiado: @${username}');">Copiar</button>`;
-        }
-        
-        line.innerHTML = content;
+        line.innerHTML = `<span>[${new Date().toLocaleTimeString()}] ${text}</span>`;
         box.appendChild(line);
         box.scrollTop = box.scrollHeight;
+    }
+
+    // Função para alterar de fato o username na conta do Discord
+    async function claimUsername(token, newUsername) {
+        addLog(`Tentando aplicar o username @${newUsername} na sua conta...`, 'claimed');
+        try {
+            // Nota: Para alterar o username global (@me) via API patch, é geralmente necessário a senha atual ou endpoint de modificação de usuário dependendo da versão da API.
+            const response = await fetch(`https://discord.com/api/v9/users/@me`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': token,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username: newUsername })
+            });
+
+            if (response.status === 200) {
+                addLog(`[SUCESSO ABSOLUTO] Username @${newUsername} aplicado com sucesso na sua conta!`, 'claimed');
+                alert(`Sucesso! O username @${newUsername} foi configurado automaticamente no seu perfil.`);
+                return true;
+            } else {
+                const errData = await response.json();
+                addLog(`Erro ao aplicar username: ${JSON.stringify(errData)}`, 'error');
+                return false;
+            }
+        } catch (e) {
+            addLog(`Erro crítico na requisição de alteração: ${e.message}`, 'error');
+            return false;
+        }
     }
 
     document.getElementById('startBtn').addEventListener('click', async function() {
@@ -260,10 +280,9 @@
         document.getElementById('startBtn').disabled = true;
         document.getElementById('stopBtn').disabled = false;
 
-        addLog('Iniciando loop de verificação de 4 dígitos...', 'taken');
+        addLog('Iniciando varredura automatizada com Auto-Claim...', 'taken');
 
         while (isRunning && currentNum <= 9999) {
-            // Formata o número para ter sempre 4 dígitos (ex: 0 -> 0000, 42 -> 0042)
             const numPadded = String(currentNum).padStart(4, '0');
             const username = prefix + numPadded;
 
@@ -273,6 +292,7 @@
             }
 
             try {
+                // Checker oficial (Pomelo attempt)
                 const response = await fetch(`https://discord.com/api/v9/users/@me/pomelo-attempt`, {
                     method: 'POST',
                     headers: {
@@ -285,16 +305,20 @@
                 if (response.status === 200) {
                     const data = await response.json();
                     if (data.taken === false) {
-                        addLog(`[ENCONTRADO LIVRE!] @${username}`, 'available', username);
-                        alert(`Username disponível encontrado e travado no log: @${username}!`);
-                        break; // Para o loop ao achar o primeiro disponível
+                        addLog(`[ENCONTRADO LIVRE!] @${username}`, 'available');
+                        
+                        // Dispara o auto-claim automático imediatamente
+                        const claimed = await claimUsername(token, username);
+                        
+                        // Para o loop após encontrar e tentar resgatar
+                        break; 
                     } else {
                         addLog(`[Ocupado] @${username}`, 'taken');
                     }
                 } else if (response.status === 429) {
                     addLog(`Rate limit atingido. Pausando por 5 segundos...`, 'error');
                     await new Promise(r => setTimeout(r, 5000));
-                    continue; // Repete a tentativa atual
+                    continue;
                 } else if (response.status === 401) {
                     addLog(`Erro 401: Token inválido ou expirado.`, 'error');
                     break;
@@ -312,14 +336,14 @@
         isRunning = false;
         document.getElementById('startBtn').disabled = false;
         document.getElementById('stopBtn').disabled = true;
-        addLog('Loop finalizado ou interrompido.', 'taken');
+        addLog('Processo encerrado.', 'taken');
     });
 
     document.getElementById('stopBtn').addEventListener('click', function() {
         isRunning = false;
         this.disabled = true;
         document.getElementById('startBtn').disabled = false;
-        addLog('Sinal de parada enviado pelo usuário.', 'error');
+        addLog('Interrompido manualmente pelo operador.', 'error');
     });
 </script>
 
