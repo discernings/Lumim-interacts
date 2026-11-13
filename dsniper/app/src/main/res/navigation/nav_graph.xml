@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/sniperFragment">
+
+    <fragment
+        android:id="@+id/sniperFragment"
+        android:name="com.cc.dsniper.ui.SniperFragment"
+        android:label="Sniper"/>
+
+    <fragment
+        android:id="@+id/proxiesFragment"
+        android:name="com.cc.dsniper.ui.ProxiesFragment"
+        android:label="Proxies"/>
+
+    <fragment
+        android:id="@+id/tokenFragment"
+        android:name="com.cc.dsniper.ui.TokenFragment"
+        android:label="Token"/>
+
+</navigation>
